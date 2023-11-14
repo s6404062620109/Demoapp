@@ -1,0 +1,12 @@
+.container{
+
+}
+
+nav{
+    height: 2.5rem;
+}
+
+.content{
+    display: flex;
+    justify-content: center;
+}

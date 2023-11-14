@@ -1,0 +1,23 @@
+.container{
+    background-color: #1F8DFF;
+    height: 100%;
+    margin-top: 0;
+}
+.navmenu{
+    display: flex;
+}
+.navmenu li{
+    align-items: center;
+    list-style: none;
+    margin-right: 0.625rem;
+}
+.navmenu li:hover{
+    background-color: white;
+}
+.navmenu li > a{
+    color: white;
+    text-decoration: none;
+}
+.navmenu li > a:hover{
+    color: black;
+}
