@@ -1,3 +1,10 @@
+.container{
+    display: flex;
+}
+
+.content{
+    margin-right: 1rem;
+}
 .header{
     font-size: 2.5rem;
     font-weight: bold;
@@ -6,8 +13,33 @@
     justify-content: center;
 }
 
+.buildingcolumn:hover{
+    cursor: pointer;
+    text-decoration: 0.125rem underline;
+}
+
 tr > td{
     text-align: center;
+}
+
+.sensornumber{
+    font-size: 0.75rem;
+}
+.sensorstatusNORM{
+    background-color: paleturquoise;
+    color: black;
+}
+.sensorstatusERR{
+    background-color: red;
+    color: white;
+}
+.sensorstatusCOMM{
+    background-color: gray;
+    color: white;
+}
+.sensorstatusSTOP{
+    background-color: yellow;
+    color: black;
 }
 
 .tablevalue{
