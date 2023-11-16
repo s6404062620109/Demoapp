@@ -2,12 +2,10 @@ import React, { useEffect, useState } from 'react';
 import style from '../css/escalator.module.css';
 import axios from 'axios';
 
+
 function Escalator() {
   const [data, setData] = useState([]);
   const [encoderdata, setEncoderdata] = useState([]);
-  const [groupa, setGroupa] = useState([]);
-  const [groupb, setGroupb] = useState([]);
-  const [groupc, setGroupc] = useState([]);
   const [detectedgroupA, setDetectedgroupA] = useState([]);
   const [detectedgroupB, setDetectedgroupB] = useState([]);
   const [detectedgroupC, setDetectedgroupC] = useState([]);
@@ -31,7 +29,6 @@ function Escalator() {
 
   useEffect(() => {
     const groupAData = encoderdata.filter((item) => item.ip.endsWith('A'));
-    setGroupa(groupAData);
     const highestNoMapA = new Map();
 
     for (let a = 0; a < groupAData.length; a++) {
@@ -43,7 +40,6 @@ function Escalator() {
     setDetectedgroupA(Array.from(highestNoMapA.values()));
     
     const groupBData = encoderdata.filter((item) => item.ip.endsWith('B'));
-    setGroupb(groupBData);
     const highestNoMapB = new Map();
 
     for (let a = 0; a < groupBData.length; a++) {
@@ -55,7 +51,6 @@ function Escalator() {
     setDetectedgroupB(Array.from(highestNoMapB.values()));
 
     const groupCData = encoderdata.filter((item) => item.ip.endsWith('C'));  
-    setGroupc(groupCData);
     const highestNoMapC = new Map();
 
     for (let a = 0; a < groupCData.length; a++) {
@@ -154,16 +149,28 @@ function Escalator() {
                       <th rowSpan={floorCount}>{value.floor}</th>
                       <td className={style.tablevalue} rowSpan={floorCount}>
                         {matchinggroupA ? 'IP: '+matchinggroupA.ip : ''}<br/>
+                        {matchinggroupA ? matchinggroupA.dir === 'DOWN' || 
+                        matchinggroupA.dir === 'err'? 
+                        (<img src='./image/triangle-red.png' className={style.statusicondown}/>) : 
+                        (<img src='./image/triangle-green.png' className={style.statusiconup}/>): ''}
                         {matchinggroupA ? 'DIR: '+matchinggroupA.dir : ''}<br/>
                         {matchinggroupA ? 'STATUS: '+matchinggroupA.status : ''}
                       </td>
                       <td className={style.tablevalue} rowSpan={floorCount}>
                         {matchinggroupB ? 'IP: '+matchinggroupB.ip : ''}<br/>
+                        {matchinggroupB ? matchinggroupB.dir === 'DOWN' || 
+                        matchinggroupB.dir === 'err'? 
+                        (<img src='./image/triangle-red.png' className={style.statusicondown}/>) : 
+                        (<img src='./image/triangle-green.png' className={style.statusiconup}/>): ''}
                         {matchinggroupB ? 'DIR: '+matchinggroupB.dir : ''}<br/>
                         {matchinggroupB ? 'STATUS: '+matchinggroupB.status : ''}
                       </td>
                       <td className={style.tablevalue} rowSpan={floorCount}>
                         {matchinggroupC ? 'IP: '+matchinggroupC.ip : ''}<br/>
+                        {matchinggroupC ? matchinggroupC.dir === 'DOWN' || 
+                        matchinggroupC.dir === 'err'? 
+                        (<img src='./image/triangle-red.png' className={style.statusicondown}/>) : 
+                        (<img src='./image/triangle-green.png' className={style.statusiconup}/>): ''} 
                         {matchinggroupC ? 'DIR: '+matchinggroupC.dir : ''}<br/>
                         {matchinggroupC ? 'STATUS: '+matchinggroupC.status : ''}
                       </td>

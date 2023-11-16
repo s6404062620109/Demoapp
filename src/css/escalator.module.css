@@ -45,3 +45,14 @@ tr > td{
 .tablevalue{
     font-size: 1rem;
 }
+
+.statusicondown{
+    width: 20px;
+    height: 20px;
+}
+.statusiconup{
+    width: 20px;
+    height: 20px;
+    transform: scaleY(-1);
+}
+
