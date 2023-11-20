@@ -21,9 +21,10 @@ function Escalator() {
         if(userresponse.data.result.length > 0){
           setUserrole(userresponse.data.result[0].role);
         }
-        else if(userresponse.data.result === 0){
+        else{
           alert("token time out!!!");
-          window.location.href = '/Signin';
+          localStorage.removeItem('token');
+          window.location.href = '/';
         }
       }
       catch(err){
