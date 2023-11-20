@@ -9,12 +9,46 @@ function Escalator() {
   const [detectedgroupA, setDetectedgroupA] = useState([]);
   const [detectedgroupB, setDetectedgroupB] = useState([]);
   const [detectedgroupC, setDetectedgroupC] = useState([]);
+  const [userrole, setUserrole] = useState('');
+  const token = localStorage.token;
+
+  const getuser = async () => {
+      try{
+        const userresponse = await axios.post('http://localhost:3001/getuserdata',
+        { token:token });
+
+        // console.log(userresponse.data.result[0]);
+        if(userresponse.data.result.length > 0){
+          setUserrole(userresponse.data.result[0].role);
+        }
+        else if(userresponse.data.result === 0){
+          alert("token time out!!!");
+          window.location.href = '/Signin';
+        }
+      }
+      catch(err){
+        console.log(err);
+      }
+  }
 
   const getData = async () =>{
     try{
-        const response = await axios.get('http://localhost:3001/getbuilding');
+        if(userrole === 'hotel_3'){
+          const h3response = await axios.get('http://localhost:3001/getbuildingh3');
+          // console.log(h3response.data.result);
+          setData(h3response.data.result);
+          // console.log(data);
+        }
+
+        else{
+          const response = await axios.get('http://localhost:3001/getbuilding');
+          setData(response.data.result);
+        }
+
+        console.log(data)
+        console.log(userrole)
         const encoderesponse = await axios.get('http://localhost:3001/getencoderInput');
-        setData(response.data.result);
+
         // console.log(encoderesponse.data.result);
         setEncoderdata(encoderesponse.data.result);
     }
@@ -24,10 +58,11 @@ function Escalator() {
   }
 
   useEffect(() => {
-    getData();
+    getuser();
   },[]);
-
+  // console.log(userrole)
   useEffect(() => {
+    getData();
     const groupAData = encoderdata.filter((item) => item.ip.endsWith('A'));
     const highestNoMapA = new Map();
 

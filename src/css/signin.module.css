@@ -1,0 +1,26 @@
+.container{
+    text-align: center;
+}
+
+.title{
+    font-weight: bold;
+}
+
+.content{
+    display: flex;
+    flex-direction: column;
+}
+.content > input{
+    margin: 0.625rem;
+}
+
+.signinbtn{
+    background-color: #1F8DFF;
+    color: white;
+    padding: .25rem;
+    border-radius: 0.625rem;
+}
+.signinbtn:hover{
+    cursor: pointer;
+    text-decoration: underline;
+}

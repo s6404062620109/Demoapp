@@ -1,21 +1,26 @@
 import style from './css/app.module.css';
-import { Route, Routes } from 'react-router-dom';
 
-import History from './components/History';
-import Escalator from './components/Escalator';
 import Navbar from './components/Navbar';
+import Client from './Client';
+import Signin from './components/Signin';
+import { Route, Routes } from 'react-router-dom';
 
 
 function App() {
+  const isSignin = !!localStorage.token;
+
   return (
     <div className={style.container}>
       <nav><Navbar/></nav>
-      <div className={style.content}>
-      <Routes>
-        <Route path='/' Component={Escalator}/>
-        <Route path='/history' Component={History}/>
-      </Routes>
-      </div>
+      {isSignin ? (
+        <Client/>
+      ) : (
+        <div className={style.content}>
+          <Routes>
+            <Route path='/' Component={Signin}/>
+          </Routes>
+        </div>
+      )}
     </div>
   );
 }
