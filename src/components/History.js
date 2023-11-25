@@ -43,13 +43,9 @@ function History() {
 
     const getData = async () => {
         try {
-          let response;
-          if (userrole === 'hotel_3') {
-            response = await axios.get('http://localhost:3001/gethistoryh3');
-          } else {
-            response = await axios.get('http://localhost:3001/gethistory');
-          }
-          setData(response.data.result);
+            const response = await axios.post('http://localhost:3001/gethistory',
+            { userrole:userrole });
+            setData(response.data.result);
         } catch (err) {
           console.log(err);
         }
