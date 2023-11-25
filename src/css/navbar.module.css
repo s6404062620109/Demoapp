@@ -14,10 +14,13 @@
 .navmenu li:hover{
     background-color: white;
 }
-.navmenu li > a{
+.navmenu li > a, .signoutbtn{
     color: white;
     text-decoration: none;
 }
-.navmenu li > a:hover{
+.navmenu li > a:hover, .signoutbtn:hover{
     color: black;
+    cursor: pointer;
 }
+    
+

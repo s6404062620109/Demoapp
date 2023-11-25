@@ -17,20 +17,53 @@ function History() {
         group: '',
         number: '',
     });
-
-    const getData = async () =>{
+    const [userrole, setUserrole] = useState('');
+    const token = localStorage.token;
+    
+    const getuser = async () => {
         try{
-            const response = await axios.get('http://localhost:3001/gethistory');
-            setData(response.data.result);
+          const userresponse = await axios.post('http://localhost:3001/getuserdata',
+          { token:token }, 
+          {withCredentials: true});
+  
+          // console.log(userresponse.data.result[0]);
+          if(userresponse.data.result.length > 0){
+            setUserrole(userresponse.data.result[0].role);
+          }
+          else{
+            alert("token time out!!!");
+            localStorage.removeItem('token');
+            window.location.href = '/';
+          }
         }
         catch(err){
-            console.log(err);
+          console.log(err);
         }
     }
+
+    const getData = async () => {
+        try {
+          let response;
+          if (userrole === 'hotel_3') {
+            response = await axios.get('http://localhost:3001/gethistoryh3');
+          } else {
+            response = await axios.get('http://localhost:3001/gethistory');
+          }
+          setData(response.data.result);
+        } catch (err) {
+          console.log(err);
+        }
+    };
     
     useEffect(() => {
-        getData();
-    }, []);
+        getuser();
+      }, []);
+      
+    useEffect(() => {
+        if (userrole) {
+          getData();
+        }
+    }, [userrole]);
 
     const handleSelectinfoChange = (event) => {
         event.preventDefault();

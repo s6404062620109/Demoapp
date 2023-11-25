@@ -6,6 +6,9 @@ import axios from 'axios';
 function Escalator() {
   const [data, setData] = useState([]);
   const [encoderdata, setEncoderdata] = useState([]);
+  const [currentdata, setCurrentdata] = useState([]);
+  const [currentdatetime, setCurrentdatetime] = useState({ 
+    date:'', time:'', no:'', status:'' });
   const [detectedgroupA, setDetectedgroupA] = useState([]);
   const [detectedgroupB, setDetectedgroupB] = useState([]);
   const [detectedgroupC, setDetectedgroupC] = useState([]);
@@ -15,7 +18,7 @@ function Escalator() {
   const getuser = async () => {
       try{
         const userresponse = await axios.post('http://localhost:3001/getuserdata',
-        { token:token });
+        { token:token }, {withCredentials: true});
 
         // console.log(userresponse.data.result[0]);
         if(userresponse.data.result.length > 0){
@@ -32,26 +35,71 @@ function Escalator() {
       }
   }
 
+  const setcurrent = (data) =>{
+    setCurrentdata(data);
+
+    let currentdate = new Date(currentdata[currentdata.length-1].datetime).toLocaleDateString();
+    let currenttime = new Date(currentdata[currentdata.length-1].datetime).toLocaleTimeString();
+    let currentsensor = currentdata[currentdata.length-1].no
+    setCurrentdatetime({ 
+      date:currentdate, time:currenttime, 
+      o:currentsensor, status:currentdata[currentdata.length-1].status 
+    });
+  }
+
   const getData = async () =>{
     try{
-        if(userrole === 'hotel_3'){
-          const h3response = await axios.get('http://localhost:3001/getbuildingh3');
-          // console.log(h3response.data.result);
-          setData(h3response.data.result);
-          // console.log(data);
+        const encoderesponse = await axios.get('http://localhost:3001/getencoderInput');
+
+        setEncoderdata(encoderesponse.data.result);
+        // console.log(encoderdata[encoderdata.length-1].datetime);
+        // console.log(new Date(encoderdata[encoderdata.length-1].datetime).toLocaleDateString());
+
+        const response = await axios.post('http://localhost:3001/getbuilding',
+        { userrole:userrole });
+        // console.log(h3response.data.result);
+        setData(response.data.result);
+
+        if(userrole === 'office_1b'){
+          const of1bencoderData = encoderesponse.data.result.filter((item) => item.building === 'O1B');
+          setcurrent(of1bencoderData);
+        }
+
+        else if(userrole === 'office_2'){
+          const of2encoderData = encoderesponse.data.result.filter((item) => item.building === 'O2');
+          setcurrent(of2encoderData);
+        }
+
+        else if(userrole === 'office_3'){
+          const of3encoderData = encoderesponse.data.result.filter((item) => item.building === 'O3');
+          setcurrent(of3encoderData);
+        }
+
+        else if(userrole === 'office_4'){
+          const of4encoderData = encoderesponse.data.result.filter((item) => item.building === 'O4');
+          setcurrent(of4encoderData);
+        }
+
+        else if(userrole === 'hotel_3'){
+          const h3encoderData = encoderesponse.data.result.filter((item) => item.building === 'H3');
+          setcurrent(h3encoderData)
+        }
+
+        else if(userrole === 'hotel_4'){
+          const h4encoderData = encoderesponse.data.result.filter((item) => item.building === 'H4');
+          setcurrent(h4encoderData);
         }
 
         else{
-          const response = await axios.get('http://localhost:3001/getbuilding');
-          setData(response.data.result);
+          let currentdate = new Date(encoderdata[encoderdata.length-1].datetime).toLocaleDateString();
+          let currenttime = new Date(encoderdata[encoderdata.length-1].datetime).toLocaleTimeString();
+          let currentsensor = encoderdata[encoderdata.length-1].no;
+          setCurrentdatetime({ 
+            date:currentdate, time:currenttime, 
+            no:currentsensor, status:encoderdata[encoderdata.length-1].status
+          });
         }
 
-        console.log(data)
-        console.log(userrole)
-        const encoderesponse = await axios.get('http://localhost:3001/getencoderInput');
-
-        // console.log(encoderesponse.data.result);
-        setEncoderdata(encoderesponse.data.result);
     }
     catch(err){
         console.log(err);
@@ -64,6 +112,7 @@ function Escalator() {
   // console.log(userrole)
   useEffect(() => {
     getData();
+
     const groupAData = encoderdata.filter((item) => item.ip.endsWith('A'));
     const highestNoMapA = new Map();
 
@@ -98,11 +147,63 @@ function Escalator() {
     setDetectedgroupC(Array.from(highestNoMapC.values()));
   }, [encoderdata]);
 
+  // console.log(h3encoderdata[h3encoderdata.length-1].datetime);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      const now = new Date();
+      const currentDate = now.toLocaleDateString();
+      const currentTime = now.toLocaleTimeString();
+  
+      const timeDifference = Math.abs(
+        new Date(`1970-01-01T${currentTime}`) - new Date(`1970-01-01T${currentdatetime.time}`)
+      ) / 1000;
+  
+      // Compare dates and times
+      if (currentdatetime.date !== currentDate) {
+        if (currentdatetime.status === "COMM") {
+          console.log("Communication Fail!");
+          clearInterval(intervalId);
+        } else {
+          try {
+            const updateresponse = axios.post('http://localhost:3001/check8secnoupdate', {
+              no: currentdatetime.no
+            });
+            console.log(updateresponse);
+          } catch (err) {
+            console.log(err);
+          }
+        }
+      }
+      else{
+        if(timeDifference>=8){
+          if (currentdatetime.status === "COMM") {
+            console.log("Communication Fail!");
+            clearInterval(intervalId);
+          } else {
+            try {
+              const updateresponse = axios.post('http://localhost:3001/check8secnoupdate', {
+                no: currentdatetime.no
+              });
+              console.log(updateresponse);
+            } catch (err) {
+              console.log(err);
+            }
+          }
+        }
+      }
+    }, 8000); // 8000 milliseconds = 8 seconds
+  
+    // Clean up the interval when the component unmounts
+    return () => clearInterval(intervalId);
+  }, [currentdatetime.date, currentdatetime.time]);
+
   const [togglebuildingsensor, setToglebuildingsensor] = useState(false);
   const [buildingsensor, setBuildingsensor] = useState([]);
   const [buildingtitle, setBuildingtitle] = useState('');
   
   const handlebuildingsensor = async (building) => {
+    console.log(currentdatetime)
     try {
       const response = await axios.post('http://localhost:3001/getbuildingsensor', { building: building });
   
@@ -185,7 +286,7 @@ function Escalator() {
                       <th rowSpan={floorCount}>{value.floor}</th>
                       <td className={style.tablevalue} rowSpan={floorCount}>
                         {matchinggroupA ? 'IP: '+matchinggroupA.ip : ''}<br/>
-                        {matchinggroupA ? matchinggroupA.dir === 'DOWN' || 
+                        {matchinggroupA ? matchinggroupA.dir === 'down' || 
                         matchinggroupA.dir === 'err'? 
                         (<img src='./image/triangle-red.png' className={style.statusicondown}/>) : 
                         (<img src='./image/triangle-green.png' className={style.statusiconup}/>): ''}
@@ -194,7 +295,7 @@ function Escalator() {
                       </td>
                       <td className={style.tablevalue} rowSpan={floorCount}>
                         {matchinggroupB ? 'IP: '+matchinggroupB.ip : ''}<br/>
-                        {matchinggroupB ? matchinggroupB.dir === 'DOWN' || 
+                        {matchinggroupB ? matchinggroupB.dir === 'down' || 
                         matchinggroupB.dir === 'err'? 
                         (<img src='./image/triangle-red.png' className={style.statusicondown}/>) : 
                         (<img src='./image/triangle-green.png' className={style.statusiconup}/>): ''}
@@ -203,7 +304,7 @@ function Escalator() {
                       </td>
                       <td className={style.tablevalue} rowSpan={floorCount}>
                         {matchinggroupC ? 'IP: '+matchinggroupC.ip : ''}<br/>
-                        {matchinggroupC ? matchinggroupC.dir === 'DOWN' || 
+                        {matchinggroupC ? matchinggroupC.dir === 'down' || 
                         matchinggroupC.dir === 'err'? 
                         (<img src='./image/triangle-red.png' className={style.statusicondown}/>) : 
                         (<img src='./image/triangle-green.png' className={style.statusiconup}/>): ''} 

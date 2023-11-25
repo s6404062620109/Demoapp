@@ -4,10 +4,14 @@ import Navbar from './components/Navbar';
 import Client from './Client';
 import Signin from './components/Signin';
 import { Route, Routes } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 
 function App() {
   const isSignin = !!localStorage.token;
+  const [userrole, setUserrole] = useState('');
+  const token = localStorage.token;
 
   return (
     <div className={style.container}>

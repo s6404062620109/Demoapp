@@ -22,6 +22,11 @@ tr > td{
     text-align: center;
 }
 
+.btnclose:hover{
+    cursor: pointer;
+    text-decoration: underline;
+}
+
 .sensornumber{
     font-size: 0.75rem;
 }
