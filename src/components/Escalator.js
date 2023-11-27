@@ -8,7 +8,7 @@ function Escalator() {
   const [encoderdata, setEncoderdata] = useState([]);
   const [currentdata, setCurrentdata] = useState([]);
   const [currentdatetime, setCurrentdatetime] = useState({ 
-    date:'', time:'', no:'', status:'' });
+    date:'', time:'', no:'', status:'', dir:'' });
   const [detectedgroupA, setDetectedgroupA] = useState([]);
   const [detectedgroupB, setDetectedgroupB] = useState([]);
   const [detectedgroupC, setDetectedgroupC] = useState([]);
@@ -40,10 +40,12 @@ function Escalator() {
 
     let currentdate = new Date(currentdata[currentdata.length-1].datetime).toLocaleDateString();
     let currenttime = new Date(currentdata[currentdata.length-1].datetime).toLocaleTimeString();
-    let currentsensor = currentdata[currentdata.length-1].no
+    let currentsensor = currentdata[currentdata.length-1].no;
+    let currentstatus = currentdata[currentdata.length-1].status;
+    let currentdir = currentdata[currentdata.length-1].dir;
     setCurrentdatetime({ 
-      date:currentdate, time:currenttime, 
-      o:currentsensor, status:currentdata[currentdata.length-1].status 
+      date:currentdate, time:currenttime, no:currentsensor, 
+      status:currentstatus, dir:currentdir
     });
   }
 
@@ -60,24 +62,11 @@ function Escalator() {
         // console.log(h3response.data.result);
         setData(response.data.result);
 
-        if(userrole === 'office_1b'){
-          const of1bencoderData = encoderesponse.data.result.filter((item) => item.building === 'O1B');
-          setcurrent(of1bencoderData);
-        }
-
-        else if(userrole === 'office_2'){
-          const of2encoderData = encoderesponse.data.result.filter((item) => item.building === 'O2');
-          setcurrent(of2encoderData);
-        }
-
-        else if(userrole === 'office_3'){
-          const of3encoderData = encoderesponse.data.result.filter((item) => item.building === 'O3');
-          setcurrent(of3encoderData);
-        }
-
-        else if(userrole === 'office_4'){
-          const of4encoderData = encoderesponse.data.result.filter((item) => item.building === 'O4');
-          setcurrent(of4encoderData);
+        if(userrole === 'office'){
+          const ofbencoderData = encoderesponse.data.result.filter((item) => 
+          item.building === 'O1B' || item.building === 'O2' || item.building === 'O3' || item.building === 'O4');
+          // console.log(ofbencoderData);
+          setcurrent(ofbencoderData);
         }
 
         else if(userrole === 'hotel_3'){
@@ -94,9 +83,11 @@ function Escalator() {
           let currentdate = new Date(encoderdata[encoderdata.length-1].datetime).toLocaleDateString();
           let currenttime = new Date(encoderdata[encoderdata.length-1].datetime).toLocaleTimeString();
           let currentsensor = encoderdata[encoderdata.length-1].no;
+          let currentstatus = encoderdata[encoderdata.length-1].status;
+          let currentdir = encoderdata[encoderdata.length-1].dir;
           setCurrentdatetime({ 
-            date:currentdate, time:currenttime, 
-            no:currentsensor, status:encoderdata[encoderdata.length-1].status
+            date:currentdate, time:currenttime, no:currentsensor, 
+            status:currentstatus, dir:currentdir
           });
         }
 
@@ -149,54 +140,58 @@ function Escalator() {
 
   // console.log(h3encoderdata[h3encoderdata.length-1].datetime);
 
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      const now = new Date();
-      const currentDate = now.toLocaleDateString();
-      const currentTime = now.toLocaleTimeString();
+  // useEffect(() => {
+  //   const intervalId = setInterval(() => {
+  //     const now = new Date();
+  //     const currentDate = now.toLocaleDateString();
+  //     const currentTime = now.toLocaleTimeString();
   
-      const timeDifference = Math.abs(
-        new Date(`1970-01-01T${currentTime}`) - new Date(`1970-01-01T${currentdatetime.time}`)
-      ) / 1000;
+  //     const timeDifference = Math.abs(
+  //       new Date(`1970-01-01T${currentTime}`) - new Date(`1970-01-01T${currentdatetime.time}`)
+  //     ) / 1000;
   
-      // Compare dates and times
-      if (currentdatetime.date !== currentDate) {
-        if (currentdatetime.status === "COMM") {
-          console.log("Communication Fail!");
-          clearInterval(intervalId);
-        } else {
-          try {
-            const updateresponse = axios.post('http://localhost:3001/check8secnoupdate', {
-              no: currentdatetime.no
-            });
-            console.log(updateresponse);
-          } catch (err) {
-            console.log(err);
-          }
-        }
-      }
-      else{
-        if(timeDifference>=8){
-          if (currentdatetime.status === "COMM") {
-            console.log("Communication Fail!");
-            clearInterval(intervalId);
-          } else {
-            try {
-              const updateresponse = axios.post('http://localhost:3001/check8secnoupdate', {
-                no: currentdatetime.no
-              });
-              console.log(updateresponse);
-            } catch (err) {
-              console.log(err);
-            }
-          }
-        }
-      }
-    }, 8000); // 8000 milliseconds = 8 seconds
+  //     // Compare dates and times
+  //     // console.log(currentDate+' '+currentdatetime.date);
+  //     if (currentdatetime.date !== currentDate) {
+  //       if (currentdatetime.status === "COMM") {
+  //         console.log("Communication Fail!");
+  //       } else {
+  //         try {
+  //           const updateresponse = axios.post('http://localhost:3001/check8secnoupdate', {
+  //             no: currentdatetime.no, dir: currentdatetime.dir
+  //           });
+  //           console.log(updateresponse);
+  //         } catch (err) {
+  //           console.log(err);
+  //         }
+  //       }
+  //     }
+  //     else{
+  //       if(timeDifference>=8){
+  //         if (currentdatetime.status === "COMM") {
+  //           console.log("Communication Fail!");
+  //         } else {
+  //           try {
+  //             const updateresponse = axios.post('http://localhost:3001/check8secnoupdate', {
+  //               no: currentdatetime.no, dir: currentdatetime.dir
+  //             });
+  //             console.log(updateresponse);
+  //           } catch (err) {
+  //             console.log(err);
+  //           }
+  //         }
+  //       }
+  //     }
+  //     console.log("No:"+currentdatetime.no+
+  //         " ,Status:"+currentdatetime.status+
+  //         " ,Dir:"+currentdatetime.dir+
+  //         " ,Date:"+currentdatetime.date+
+  //         " Time:"+currentdatetime.time);
+  //   }, 8000); // 8000 milliseconds = 8 seconds
   
-    // Clean up the interval when the component unmounts
-    return () => clearInterval(intervalId);
-  }, [currentdatetime.date, currentdatetime.time]);
+  //   // Clean up the interval when the component unmounts
+  //   return () => clearInterval(intervalId);
+  // }, [currentdatetime.date, currentdatetime.time]);
 
   const [togglebuildingsensor, setToglebuildingsensor] = useState(false);
   const [buildingsensor, setBuildingsensor] = useState([]);
