@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import style from '../css/history.module.css';
+import { handleExport } from '../functions/functions';
 
 
 function History() {
@@ -154,22 +155,6 @@ function History() {
         // setData(filteredData);
     };
 
-    const handleExport = () => {
-        const csvContent = "data:text/csv;charset=utf-8," +
-          "Date,Time,Building,Group,Number,Information\n" +
-          data.map(datavalue =>
-            `${new Date(datavalue.date).toLocaleDateString('en-GB')},${formatTime(datavalue.time)},${datavalue.building},${datavalue.group},${datavalue.number},${datavalue.information}`
-          ).join("\n");
-    
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "history.csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
-
     // console.log(selectedOption);
     // console.log(data);
 
@@ -270,7 +255,7 @@ function History() {
 
             <div className={style.column}>
                 <div className={style.btnfilter} onClick={() => handleFilter()}> Filter </div>
-                <div className={style.btnexport} onClick={() => handleExport()}> Export </div>
+                <div className={style.btnexport} onClick={() => handleExport(data)}> Export </div>
             </div>
         </div>
 
