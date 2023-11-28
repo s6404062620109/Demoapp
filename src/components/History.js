@@ -43,8 +43,7 @@ function History() {
 
     const getData = async () => {
         try {
-            const response = await axios.post('http://localhost:3001/gethistory',
-            { userrole:userrole });
+            const response = await axios.get('http://localhost:3001/gethistory');
             setData(response.data.result);
         } catch (err) {
           console.log(err);
@@ -84,7 +83,7 @@ function History() {
         const selectedGroup = event.target.value;
         setSelectedOption((prevSelectedOption) => ({
             ...prevSelectedOption,
-            group: selectedGroup,
+            group: selectedGroup === 'All' ? '' : selectedGroup,
         }));
     };
 
@@ -93,7 +92,7 @@ function History() {
         const selectedNumber = event.target.value;
         setSelectedOption((prevSelectedOption) => ({
             ...prevSelectedOption,
-            number: selectedNumber,
+            number: selectedNumber === 'All' ? '' : selectedNumber,
         }));
     };
 
@@ -102,27 +101,57 @@ function History() {
         return time.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
     };
 
-    const handleFilter = () => {
-        // console.log(selectedOption)
-        const filteredData = data.filter(datavalue => {
-            const dateData = new Date(datavalue.date).toLocaleDateString('en-GB');
-            const startDate = new Date(selectedOption.Period).toLocaleDateString('en-GB');
-            const endDate = selectedOption.to ? new Date(selectedOption.to).toLocaleDateString('en-GB') : null;
+    const handleFilter = async () => {
+        const allAttributesEmpty = Object.values(selectedOption).every(value => value === '');
+        if (allAttributesEmpty ||
+            selectedOption.information === '' || selectedOption.building === '' ||
+            selectedOption.group === '' || selectedOption.number === '' ) {
+            setSelectedOption({
+                Period: '',
+                to: '',
+                information: 'All',
+                building: 'All',
+                group: 'All',
+                number: 'All',
+            });
+            return;
+        }
     
-            // Check conditions for Period
-            const dateCondition = endDate ? dateData >= startDate && dateData <= endDate : dateData === startDate;
+        // console.log(selectedOption);
+        try{
+            const response = await axios.post('http://localhost:3001/filter', 
+            { period:selectedOption.Period+' '+selectedOption.to,
+              infor:selectedOption.information,
+              building:selectedOption.building,
+              group:selectedOption.group,
+              number:selectedOption.number,
+              userrole:userrole
+            });
+            // console.log(response.data.result);
+            setData(response.data.result);
+        }
+        catch(err){
+            console.log(err);
+        }
+        // const filteredData = data.filter(datavalue => {
+        //     const dateData = new Date(datavalue.date).toLocaleDateString('en-GB');
+        //     const startDate = new Date(selectedOption.Period).toLocaleDateString('en-GB');
+        //     const endDate = selectedOption.to ? new Date(selectedOption.to).toLocaleDateString('en-GB') : null;
     
-            // Check conditions for other attributes if they are not empty
-            const informationCondition = selectedOption.information !== '' ? datavalue.information === selectedOption.information : true;
-            const buildingCondition = selectedOption.building !== '' ? datavalue.building === selectedOption.building : true;
-            const groupCondition = selectedOption.group !== '' ? datavalue.group === selectedOption.group : true;
-            const numberCondition = selectedOption.number !== '' ? datavalue.number === selectedOption.number : true;
+        //     // Check conditions for Period
+        //     const dateCondition = selectedOption.Period ? (endDate ? dateData >= startDate && dateData <= endDate : dateData === startDate) : true;
     
-            // Return true only if all conditions are met
-            return dateCondition && informationCondition && buildingCondition && groupCondition && numberCondition;
-        });
+        //     // Check conditions for other attributes if they are not empty
+        //     const informationCondition = selectedOption.information !== 'All' ? datavalue.information === selectedOption.information : true;
+        //     const buildingCondition = selectedOption.building !== 'All' ? datavalue.building === selectedOption.building : true;
+        //     const groupCondition = selectedOption.group !== 'All' ? datavalue.group === selectedOption.group : true;
+        //     const numberCondition = selectedOption.number !== 'All' ? datavalue.number === selectedOption.number : true;
     
-        setData(filteredData);
+        //     // Return true only if all conditions are met
+        //     return dateCondition && informationCondition && buildingCondition && groupCondition && numberCondition;
+        // });
+    
+        // setData(filteredData);
     };
 
     const handleExport = () => {
