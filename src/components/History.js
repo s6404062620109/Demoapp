@@ -26,8 +26,7 @@ function History() {
           const userresponse = await axios.post('http://localhost:3001/getuserdata',
           { token:token }, 
           {withCredentials: true});
-  
-          // console.log(userresponse.data.result[0]);
+          
           if(userresponse.data.result.length > 0){
             setUserrole(userresponse.data.result[0].role);
           }
@@ -118,7 +117,6 @@ function History() {
             return;
         }
     
-        // console.log(selectedOption);
         try{
             const response = await axios.post('http://localhost:3001/filter', 
             { period:selectedOption.Period+' '+selectedOption.to,
@@ -128,35 +126,12 @@ function History() {
               number:selectedOption.number,
               userrole:userrole
             });
-            // console.log(response.data.result);
             setData(response.data.result);
         }
         catch(err){
             console.log(err);
         }
-        // const filteredData = data.filter(datavalue => {
-        //     const dateData = new Date(datavalue.date).toLocaleDateString('en-GB');
-        //     const startDate = new Date(selectedOption.Period).toLocaleDateString('en-GB');
-        //     const endDate = selectedOption.to ? new Date(selectedOption.to).toLocaleDateString('en-GB') : null;
-    
-        //     // Check conditions for Period
-        //     const dateCondition = selectedOption.Period ? (endDate ? dateData >= startDate && dateData <= endDate : dateData === startDate) : true;
-    
-        //     // Check conditions for other attributes if they are not empty
-        //     const informationCondition = selectedOption.information !== 'All' ? datavalue.information === selectedOption.information : true;
-        //     const buildingCondition = selectedOption.building !== 'All' ? datavalue.building === selectedOption.building : true;
-        //     const groupCondition = selectedOption.group !== 'All' ? datavalue.group === selectedOption.group : true;
-        //     const numberCondition = selectedOption.number !== 'All' ? datavalue.number === selectedOption.number : true;
-    
-        //     // Return true only if all conditions are met
-        //     return dateCondition && informationCondition && buildingCondition && groupCondition && numberCondition;
-        // });
-    
-        // setData(filteredData);
     };
-
-    // console.log(selectedOption);
-    // console.log(data);
 
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
